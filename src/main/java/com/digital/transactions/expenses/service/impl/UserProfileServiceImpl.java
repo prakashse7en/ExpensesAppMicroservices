@@ -4,6 +4,7 @@ import com.digital.transactions.expenses.pojo.model.User;
 import com.digital.transactions.expenses.service.AuthTokenService;
 import com.digital.transactions.expenses.service.UserProfileService;
 import com.digital.transactions.expenses.utils.Constants;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,11 +23,12 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Autowired
     AuthTokenService authTokenService;
 
-
+    private static final String SAMPLE_SERVICE = "sampleService";
 
 
     @Override
     @Cacheable(value = "userprofileCache", key = "#userId")
+    @CircuitBreaker(name = SAMPLE_SERVICE, fallbackMethod = "fallbackResponse")
     public User getUserProfileByUserId(final UUID userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer "+authTokenService.getToken()); // Set the Authorization header
@@ -48,8 +50,14 @@ public class UserProfileServiceImpl implements UserProfileService {
         } catch (Exception e) {
             // Handle exceptions (e.g., network issues, invalid URL)
             System.err.println("Exception while calling API: " + e.getMessage());
-            return null; // Or throw an exception
+            throw e; // Or throw an exception
         }
+    }
+
+    public User fallbackResponse(Exception ex) {
+        User user = new User();
+        user.setUserName("DEFAULTUSER");
+        return user;
     }
 
     @CacheEvict(value = "userprofileCache", key = "#userId")
