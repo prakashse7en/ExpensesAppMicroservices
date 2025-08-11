@@ -29,31 +29,36 @@ public class ExpensesServiceImpl implements ExpensesService {
 
     @Override
     public List<ExpensesDto> getExpensesByUserId(UUID userId) throws UserNotFoundException {
-        List<ExpensesDto> expensesDtoList=null;
-        User user = userProfileService.getUserProfileByUserId(userId);
-        if (user == null) {
+        List<ExpensesDto> expensesDtoList = null;
+        try {
 
-           throw new UserNotFoundException("user not found"); // or throw an exception
+            User user = userProfileService.getUserProfileByUserId(userId);
+            if (user == null) {
+
+                throw new UserNotFoundException("user not found"); // or throw an exception
+            }
+            List<Expenses> expenses = expensesRepository.findByUserId(userId);
+
+            if (!ObjectUtils.isEmpty(expenses)) {
+
+                //stream list and map to dto
+                ExpensesMapper expensesMapper = Mappers.getMapper(ExpensesMapper.class);
+
+                expensesDtoList = expenses.stream()
+                        .map(expense -> {
+                            ExpensesDto expensesDto = expensesMapper.toDto(expense);
+                            expensesDto.setUserName(user.getUserName());
+                            return expensesDto;
+                        })
+                        .toList();
+
+
+            }
+            //convert all to expenses dto
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new UserNotFoundException("user not found");
         }
-        List<Expenses> expenses = expensesRepository.findByUserId(userId);
-
-        if(!ObjectUtils.isEmpty(expenses)){
-
-            //stream list and map to dto
-            ExpensesMapper expensesMapper = Mappers.getMapper(ExpensesMapper.class);
-
-            expensesDtoList = expenses.stream()
-                    .map(expense -> {
-                        ExpensesDto expensesDto = expensesMapper.toDto(expense);
-                        expensesDto.setUserName(user.getUserName());
-                        return expensesDto;
-                    })
-                    .toList();
-
-
-
-        }
-        //convert all to expenses dto
         return expensesDtoList;
     }
 }

@@ -5,6 +5,8 @@ import com.digital.transactions.expenses.service.AuthTokenService;
 import com.digital.transactions.expenses.service.UserProfileService;
 import com.digital.transactions.expenses.utils.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -22,9 +24,10 @@ public class UserProfileServiceImpl implements UserProfileService {
 
 
 
-    //cache the user profile by userId
+
     @Override
-    public User getUserProfileByUserId(UUID userId) {
+    @Cacheable(value = "userprofileCache", key = "#userId")
+    public User getUserProfileByUserId(final UUID userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer "+authTokenService.getToken()); // Set the Authorization header
         headers.setContentType(MediaType.APPLICATION_JSON); // Assuming the API returns JSON
@@ -47,6 +50,12 @@ public class UserProfileServiceImpl implements UserProfileService {
             System.err.println("Exception while calling API: " + e.getMessage());
             return null; // Or throw an exception
         }
+    }
+
+    @CacheEvict(value = "userprofileCache", key = "#userId")
+    public void evictUserProfileCache(UUID userId) {
+        // This method will evict all entries from the userprofileCache
+        System.out.println("All caches have been evicted.");
     }
 
 

@@ -7,4 +7,5 @@ import java.util.UUID;
 public interface UserProfileService {
 
     User getUserProfileByUserId(UUID userId);
+    void evictUserProfileCache(UUID userId);
 }

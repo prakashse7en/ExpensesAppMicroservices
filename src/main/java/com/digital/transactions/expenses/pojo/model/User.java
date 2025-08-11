@@ -4,12 +4,13 @@ package com.digital.transactions.expenses.pojo.model;
 import lombok.Data;
 import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 
 @Data
 
-public class User {
+public class User implements Serializable {
 
 
     private UUID userId;
