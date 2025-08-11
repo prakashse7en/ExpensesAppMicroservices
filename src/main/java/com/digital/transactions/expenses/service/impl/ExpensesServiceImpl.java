@@ -16,6 +16,8 @@ import org.springframework.util.ObjectUtils;
 import java.util.List;
 import java.util.UUID;
 
+import static com.digital.transactions.expenses.utils.CommonUtils.optimizeUserNameForDefaultUser;
+
 @Component
 public class ExpensesServiceImpl implements ExpensesService {
 
@@ -34,13 +36,13 @@ public class ExpensesServiceImpl implements ExpensesService {
 
             User user = userProfileService.getUserProfileByUserId(userId);
             if (user == null) {
-
                 throw new UserNotFoundException("user not found"); // or throw an exception
             }
+
+            optimizeUserNameForDefaultUser(userId, user);
             List<Expenses> expenses = expensesRepository.findByUserId(userId);
 
             if (!ObjectUtils.isEmpty(expenses)) {
-
                 //stream list and map to dto
                 ExpensesMapper expensesMapper = Mappers.getMapper(ExpensesMapper.class);
 
@@ -52,7 +54,6 @@ public class ExpensesServiceImpl implements ExpensesService {
                         })
                         .toList();
 
-
             }
             //convert all to expenses dto
         }catch(Exception e){
@@ -61,4 +62,6 @@ public class ExpensesServiceImpl implements ExpensesService {
         }
         return expensesDtoList;
     }
+
+
 }

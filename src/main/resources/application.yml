@@ -50,7 +50,7 @@ server:
 resilience4j:
   circuitbreaker:
     instances:
-      sampleService:
+      userprofileService:
         sliding-window-type: COUNT_BASED
         failure-rate-threshold: 50
         minimum-number-of-calls: 5

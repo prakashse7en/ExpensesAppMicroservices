@@ -23,12 +23,12 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Autowired
     AuthTokenService authTokenService;
 
-    private static final String SAMPLE_SERVICE = "sampleService";
+    private static final String USERPROFILE_SERVICE = "userprofileService";
 
 
     @Override
     @Cacheable(value = "userprofileCache", key = "#userId")
-    @CircuitBreaker(name = SAMPLE_SERVICE, fallbackMethod = "fallbackResponse")
+    @CircuitBreaker(name = USERPROFILE_SERVICE, fallbackMethod = "fallbackUserprofileResponse")
     public User getUserProfileByUserId(final UUID userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer "+authTokenService.getToken()); // Set the Authorization header
@@ -54,7 +54,7 @@ public class UserProfileServiceImpl implements UserProfileService {
         }
     }
 
-    public User fallbackResponse(Exception ex) {
+    public User fallbackUserprofileResponse(Exception ex) {
         User user = new User();
         user.setUserName("DEFAULTUSER");
         return user;
