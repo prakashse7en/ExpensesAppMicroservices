@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-currency-field-to-expenses
+      author: se7en
+      changes:
+        - addColumn:
+            tableName: expenses
+            columns:
+              - column:
+                  name: currency
+                  type: VARCHAR(10)

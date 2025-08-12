@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: alter-currency-field-to-varchar5
+      author: my_name
+      preConditions:
+        - sqlCheck:
+            expectedResult: 0
+            sql: "SELECT COUNT(*) FROM expenses WHERE currency IS NOT NULL AND currency != ''"
+      changes:
+        - modifyDataType:
+            columnName: currency
+            tableName: expenses
+            newDataType: VARCHAR(5)
