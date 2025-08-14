@@ -1,9 +1,6 @@
 package com.digital.transactions.expenses.service.impl;
 
-import com.digital.transactions.expenses.pojo.model.User;
 import com.digital.transactions.expenses.service.AuthTokenService;
-import com.digital.transactions.expenses.utils.Constants;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -12,17 +9,21 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import static java.util.Collections.singletonList;
-
 
 @Component
 public class AuthTokenServiceImpl implements AuthTokenService {
 
-    static final String GRANT_TYPE_CLIENT_CREDENTIALS = "password";
-    static final String CLIENT_ID = "expenses-clientid";
-    static final String PASSWORD = "password";
-    static final String USERNAME = "expensesuser";
-    static final String TOKEN_ENDPOINT = "http://localhost:8080/realms/expenses/protocol/openid-connect/token";
+
+    @Value("${jwt.credts.clientId}")
+    private String clientId;
+    @Value("${jwt.credts.password}")
+    private String password;
+    @Value("${jwt.credts.username}")
+    private String userName;
+    @Value("${jwt.credts.url}")
+    private String tokenEndpoint;
+
+
 
     @Autowired
     RestTemplate restTemplate;
@@ -35,14 +36,14 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "password");
-        map.add("username", USERNAME);
-        map.add("password", PASSWORD);
-        map.add("client_id", CLIENT_ID);
+        map.add("username", userName);
+        map.add("password", password);
+        map.add("client_id", clientId);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(TOKEN_ENDPOINT, request, String.class);
+            ResponseEntity<String> response = restTemplate.postForEntity(tokenEndpoint, request, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 // Parse the JSON response to extract the access token
@@ -66,6 +67,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
                 return null;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Exception while calling token endpoint: " + e.getMessage());
             // Handle exceptions appropriately (e.g., throw an exception)
             return null;

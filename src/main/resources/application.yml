@@ -28,11 +28,20 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     url: jdbc:mysql://localhost:3306/full-stack-ecommerce?useSSL=false&useUnicode=yes&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&serverTimezone=UTC
+
+
+
 jwt:
   auth:
     converter:
-      principle-attribute: expensesuser
-      resource-id: expenses-clientid
+      principle-attribute: expensesuser #TODO JWT change
+      resource-id: expensesclientadmin #TODO JWT change
+  credts:
+    clientId: expensesclientadmin #TODO JWT change
+    password: password #TODO JWT change
+    username: expensesuser #TODO JWT change
+    url: http://localhost:8080/realms/expenses/protocol/openid-connect/token #TODO JWT change
+
 management:
   endpoint:
     health:
