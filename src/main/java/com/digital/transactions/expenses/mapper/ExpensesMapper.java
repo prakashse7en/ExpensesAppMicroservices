@@ -15,5 +15,14 @@ public interface ExpensesMapper {
     @Mapping(target = "expenseAmount", source = "expenseAmount")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "description", source = "description")
-    ExpensesDto toDto(Expenses expenses);
+    ExpensesDto toExpensesDto(Expenses expenses);
+
+    @Mapping(target = "expenseId", source = "expenseId")
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "expenseAmount", source = "expenseAmount")
+    @Mapping(target = "category", source = "category")
+    @Mapping(target = "description", source = "description")
+    Expenses toExpensesEntity(ExpensesDto expensesDto);
+
+
 }

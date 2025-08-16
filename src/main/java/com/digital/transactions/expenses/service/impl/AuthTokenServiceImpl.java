@@ -1,6 +1,8 @@
 package com.digital.transactions.expenses.service.impl;
 
 import com.digital.transactions.expenses.service.AuthTokenService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -28,6 +30,9 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     @Autowired
     RestTemplate restTemplate;
 
+    private final Logger logger = LoggerFactory.getLogger(AuthTokenServiceImpl.class);
+
+
 
     @Override
     public String getToken() {
@@ -46,12 +51,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
             ResponseEntity<String> response = restTemplate.postForEntity(tokenEndpoint, request, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                // Parse the JSON response to extract the access token
-                // (You'll likely want to use a JSON library like Jackson for this)
                 String responseBody = response.getBody();
-
-
-                // Basic example (not recommended for production, use a JSON library):
                 if (responseBody != null && responseBody.contains("access_token")) {
                     int startIndex = responseBody.indexOf("access_token") + "access_token".length() + 3; // ":\"".length()
                     int endIndex = responseBody.indexOf("\"", startIndex);
@@ -59,20 +59,12 @@ public class AuthTokenServiceImpl implements AuthTokenService {
                         return responseBody.substring(startIndex, endIndex);
                     }
                 }
-
-                return null; // Or throw an exception if access_token is not found
-            } else {
-                System.err.println("Error: Received status code " + response.getStatusCode());
-                // Handle error cases appropriately (e.g., throw an exception)
-                return null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Exception while calling token endpoint: " + e.getMessage());
-            // Handle exceptions appropriately (e.g., throw an exception)
-            return null;
+            logger.error("Exception while calling token endpoint", e);
+            throw e;
         }
+        return null;
     }
-
 
 }

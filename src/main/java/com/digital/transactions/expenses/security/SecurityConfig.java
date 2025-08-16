@@ -1,6 +1,6 @@
 package com.digital.transactions.expenses.security;
 
-import com.digital.transactions.expenses.aop.CustomAuthenticationEntryPoint;
+import com.digital.transactions.expenses.aop.AuthorizationExceptionAdvice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +21,7 @@ public class SecurityConfig {
 
 
     private final JwtAuthConverter jwtAuthConverter;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final AuthorizationExceptionAdvice authorizationExceptionAdvice;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -33,10 +33,10 @@ public class SecurityConfig {
                                 .authenticated().anyRequest().permitAll())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
-                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .authenticationEntryPoint(authorizationExceptionAdvice)
                 )
                 .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.authenticationEntryPoint(customAuthenticationEntryPoint)
+                        exceptionHandling.authenticationEntryPoint(authorizationExceptionAdvice)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
         return http.build();

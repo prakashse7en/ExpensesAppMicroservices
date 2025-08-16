@@ -26,16 +26,16 @@ public class RedisHealthIndicator implements HealthIndicator {
                 try {
                     String pingResponse = connection.ping();
                     if ("PONG".equalsIgnoreCase(pingResponse)) {
-                        return Health.up().withDetail("database", "Redis").build();
+                        return Health.up().withDetail("cache", "Redis").build();
                     } else {
-                        return Health.down().withDetail("database", "Redis").withDetail("error", "Unexpected response: " + pingResponse).build();
+                        return Health.down().withDetail("cache", "Redis").withDetail("error", "Unexpected response: " + pingResponse).build();
                     }
                 } catch (DataAccessException e) {
-                    return Health.down().withDetail("database", "Redis").withDetail("error", "Connection error: " + e.getMessage()).build();
+                    return Health.down().withDetail("cache", "Redis").withDetail("error", "Connection error: " + e.getMessage()).build();
                 }
             });
         } catch (Exception e) {
-            return Health.down().withDetail("database", "Redis").withDetail("error", "General error: " + e.getMessage()).build();
+            return Health.down().withDetail("cache", "Redis").withDetail("error", "General error: " + e.getMessage()).build();
         }
     }
 }
