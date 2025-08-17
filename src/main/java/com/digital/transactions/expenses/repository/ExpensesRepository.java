@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface ExpensesRepository extends JpaRepository<Expenses, String> {
+public interface ExpensesRepository extends JpaRepository<Expenses, UUID> {
 
 
     @Query("SELECT e FROM Expenses e WHERE e.userId = :userId")

@@ -1,5 +1,6 @@
 package com.digital.transactions.expenses.service.impl;
 
+import com.digital.transactions.expenses.exception.UserNotFoundException;
 import com.digital.transactions.expenses.pojo.model.User;
 import com.digital.transactions.expenses.service.AuthTokenService;
 import com.digital.transactions.expenses.service.UserProfileService;
@@ -12,6 +13,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
@@ -27,13 +29,14 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     private static final String USERPROFILE_SERVICE = "userprofileService";
     private final Logger logger = LoggerFactory.getLogger(UserProfileServiceImpl.class);
+
     @Value("${userprofile.service.url}")
     private String userprofileEndpoint;
 
     @Override
     @Cacheable(value = "userprofileCache", key = "#userId")
-    @CircuitBreaker(name = USERPROFILE_SERVICE, fallbackMethod = "fallbackUserprofileResponse")
-    public User getUserProfileByUserId(final UUID userId) {
+    //@CircuitBreaker(name = USERPROFILE_SERVICE, fallbackMethod = "fallbackUserprofileResponse")
+    public User getUserProfileByUserId(final UUID userId) throws UserNotFoundException {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer "+authTokenService.getToken()); // Set the Authorization header
         headers.setContentType(MediaType.APPLICATION_JSON); // Assuming the API returns JSON
@@ -48,16 +51,17 @@ public class UserProfileServiceImpl implements UserProfileService {
                     User.class // Map the response to the User class
             );
 
-           return responseEntity.getStatusCode() == HttpStatus.OK
-                    ? responseEntity.getBody()
+           return responseEntity.getStatusCode() == HttpStatus.OK ? responseEntity.getBody()
                     : null;
-        } catch (Exception e) {
-            logger.error("Exception while calling API: ", e);
-            throw e; // Or throw an exception
+        }catch (HttpClientErrorException.NotFound ex) {
+
+            logger.error("User profile not found for userId: {}", userId);
+            throw new UserNotFoundException("User not found with ID: " + userId);
+
         }
     }
 
-    public User fallbackUserprofileResponse(Exception ex) {
+    public User fallbackUserprofileResponse(Throwable t) {
         User user = new User();
         user.setUserName("DEFAULTUSER");
         return user;

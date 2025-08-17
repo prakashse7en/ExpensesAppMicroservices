@@ -28,13 +28,13 @@ public class ExpensesController {
 
     @PostMapping("/api/v1/expenses")
     @PreAuthorize("hasRole('clientadmin')")
-    public ExpensesDto createExpense(@RequestBody ExpensesDto expensesDto) {
+    public ExpensesDto createExpense(@RequestBody ExpensesDto expensesDto) throws UserNotFoundException {
         try{
             return expensesService.createExpenses(expensesDto);
         }catch(Exception e) {
             logger.error("Error occurred while creating expense", e);
+            throw e;
         }
-        return null;
     }
 
     /**
